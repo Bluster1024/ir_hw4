@@ -1,0 +1,62 @@
+<!--TODO: add your html here-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background-color: lightskyblue;
+        }
+    </style>
+    <title>Washington Post Search</title>
+</head>
+<body>
+
+<h3>Search Result</h3>
+
+<form action="{{ url_for('results') }}" name="search" method="post">
+    <label for="query">Query:</label>
+    <input type="text" id="query" name="query" value="{{ query_text }}" size=50>
+    <input type="submit" value="Search">
+</form>
+
+<div>
+    {% if stop_words!="" or stop_words!= None %}
+        <p>Ignoring term: {{ stop_words }}</p>
+    {% endif %}
+    {% if match_counts== 0 %}
+        <p>Unknown search term: {{ unknown_words }}</p>
+    {% endif %}
+    {% for token_idf in query_words_idf_list %}
+        <p>idf of {{ token_idf[0] }}: {{ token_idf[1] }}</p>
+    {% endfor %}
+</div>
+<ul>
+    {% for doc in this_page %}
+        <li>
+            <div>
+                [{{ doc.score }}]
+                <a href="{{ url_for('doc_data', doc_id=doc['id']) }}">{{ doc.title }}</a>
+            </div>
+        </li>
+        {{ doc.get('content_str','N/A')[:150] }}
+        <div>
+            matched query words:
+            {% for matched_query in doc["matched_query_words"] %}
+                {{ matched_query }}
+            {% endfor %}
+        </div>
+    {% endfor %}
+    <li>unknown words:{{ unknown_words }}</li>
+    <li>matched records: {{ match_counts }}</li>
+</ul>
+
+
+<form action="{{ url_for('next_page', page_id=(page_id + 1)|int) }}" name="next" method="post">
+    {% if is_button_visible %}
+        <input type="hidden" name="query_text" value="{{ query_text }}">
+        <button type="submit"> Next Page </button>
+    {% endif %}
+</form>
+</body>
+</html>

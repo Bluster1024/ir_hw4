@@ -1,0 +1,3 @@
+Flask
+nltk==3.5
+pymongo
